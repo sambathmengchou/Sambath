@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ទាញយកចម្រៀង និងវីដេអូ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Khmer&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen flex items-center justify-center font-['Khmer'] transition-colors duration-300" id="body">
+    <div class="container mx-auto p-6 max-w-md">
+        <div class="flex justify-end mb-4">
+            <button id="themeToggle" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition">
+                <svg id="themeIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            </button>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transform hover:scale-105 transition-transform duration-300">
+            <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6">ទាញយកចម្រៀង និងវីដេអូ</h1>
+            <div class="space-y-4">
+                <input id="urlInput" type="text" placeholder="បញ្ចូល URL វីដេអូ ឬចម្រៀង" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition">
+                <button id="fetchInfoBtn" class="w-full bg-gray-500 text-white p-3 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition">បង្ហាញព័ត៌មាន</button>
+                <div id="infoSection" class="hidden space-y-4">
+                    <img id="thumbnail" src="" alt="Thumbnail" class="w-full h-40 object-cover rounded-lg">
+                    <p id="title" class="text-lg font-semibold text-gray-700 dark:text-gray-200"></p>
+                    <div class="flex space-x-4">
+                        <button id="downloadMp3Btn" class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+                            <span>ទាញយក MP3</span>
+                        </button>
+                        <button id="downloadMp4Btn" class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <span>ទាញយក MP4</span>
+                        </button>
+                    </div>
+                </div>
+                <p id="status" class="text-center text-gray-600 dark:text-gray-300 mt-4"></p>
+            </div>
+        </div>
+        <div class="text-center mt-6 text-gray-500 dark:text-gray-400 text-sm">
+            <p>រចនា និងបង្កើតដោយ <span class="font-semibold">Your Name</span></p>
+            <a href="mailto:your.email@example.com" class="inline-block mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">ទំនាក់ទំនងអ្នកបង្កើត</a>
+        </div>
+    </div>
+    <script>
+        const fetchInfoBtn = document.getElementById('fetchInfoBtn');
+        const downloadMp3Btn = document.getElementById('downloadMp3Btn');
+        const downloadMp4Btn = document.getElementById('downloadMp4Btn');
+        const urlInput = document.getElementById('urlInput');
+        const status = document.getElementById('status');
+        const infoSection = document.getElementById('infoSection');
+        const thumbnail = document.getElementById('thumbnail');
+        const title = document.getElementById('title');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.getElementById('body');
+
+        // Theme toggle logic
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            body.classList.add('dark');
+            body.classList.remove('bg-gradient-to-br', 'from-blue-50', 'to-purple-100');
+            body.classList.add('bg-gray-900');
+            themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                body.classList.remove('bg-gradient-to-br', 'from-blue-50', 'to-purple-100');
+                body.classList.add('bg-gray-900');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('bg-gradient-to-br', 'from-blue-50', 'to-purple-100');
+                body.classList.remove('bg-gray-900');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        fetchInfoBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) {
+                status.textContent = 'សូមបញ្ចូល URL!';
+                status.classList.add('text-red-500');
+                return;
+            }
+
+            status.textContent = 'កំពុងទាញព័ត៌មាន...';
+            status.classList.remove('text-red-500');
+            status.classList.add('text-blue-500');
+
+            try {
+                const response = await fetch('/info', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    thumbnail.src = data.thumbnail;
+                    title.textContent = data.title;
+                    infoSection.classList.remove('hidden');
+                    status.textContent = '';
+                } else {
+                    const errorData = await response.json();
+                    status.textContent = `កំហុស: ${errorData.message || 'មិនអាចទាញព័ត៌មានបាន!'}`;
+                    status.classList.add('text-red-500');
+                }
+            } catch (error) {
+                status.textContent = `កំហុស: ${error.message || 'បញ្ហាការតភ្ជាប់បណ្តាញ!'}`;
+                status.classList.add('text-red-500');
+            }
+        });
+
+        async function download(format) {
+            const url = urlInput.value.trim();
+            status.textContent = 'កំពុងទាញយក...';
+            status.classList.add('text-blue-500');
+
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, format })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = format === 'mp3' ? `${title.textContent}.mp3` : `${title.textContent}.mp4`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    status.textContent = 'ទាញយកជោគជ័យ!';
+                    status.classList.remove('text-blue-500');
+                    status.classList.add('text-green-500');
+                } else {
+                    const errorData = await response.json();
+                    status.textContent = `កំហុស: ${errorData.message || 'មិនអាចទាញយកបាន!'}`;
+                    status.classList.add('text-red-500');
+                }
+            } catch (error) {
+                status.textContent = `កំហុស: ${error.message || 'បញ្ហាការតភ្ជាប់បណ្តាញ!'}`;
+                status.classList.add('text-red-500');
+            }
+        }
+
+        downloadMp3Btn.addEventListener('click', () => download('mp3'));
+        downloadMp4Btn.addEventListener('click', () => download('mp4'));
+    </script>
+</body>
+</html>
