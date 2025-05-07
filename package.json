@@ -1,9 +1,9 @@
 {
-  "name": "Sambath",
+  "name": "youtube-downloader",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "api/server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node api/server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -11,6 +11,8 @@
     "uuid": "^9.0.0",
     "winston": "^3.8.2",
     "axios": "^1.6.0",
-    "node-id3": "^0.2.6"
+    "node-id3": "^0.2.6",
+    "ytdl-core": "^4.11.5",
+    "ffmpeg-static": "^5.2.0"
   }
 }
